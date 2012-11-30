@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="211" height="13" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="tileset.png" tilewidth="16" tileheight="16">
+  <image source="tileset.png" width="128" height="80"/>
+ </tileset>
+ <layer name="visual" width="211" height="13">
+  <data encoding="base64" compression="zlib">
+   eJztl+luAjEMhEMverBdWlp6A33/l2wqEckanGOdZC/84xMo6zgTr4eEhTFmoSjKqLiwXFquCuTIzaP6VX9OnuuB93djWVpuE/bpy+lyhPKoftVfU/+d5V6gP3d/klwl39U56n+YuP4p1H9VQb+UZsC1++Qxgi82pz5d5/r0uGfNEe753GiPxOJWldZXlDnQGvVSTaT3JWVatKaMl9Y9655Sfz6NcI/PI6jLnEAfSb20IdTQiXd3d/+mnzXWfbG8VohNocTefHP/xzl/NwnfU/L7YkPxred7DOzbLnNRm7TenI+kXgr976RsBTprEuv/N8t7on6MHSNjq7+D8wPXi6if69vUPi6tPcVLqB+9tGHg1vywfFq+hJq79EHqGRHrf/o8pj+Wa+g+7rP+XQj5gY6hfl/f+nrZ6c+9P9D5IR/h+lz90UvuPPo2p2fTFvL8JLzPnWVPOHh0YPyBjKWeETRuB2vS5yn6XWwJ/RI4/fge+6q/xEctWRPHUX+ob3Ec9WNvdNXv5sd8xP0OYP3Rb5yXUP+vcoKrX4kcuXnmwLnU4Q+TWzzg
+  </data>
+ </layer>
+ <layer name="props" width="211" height="13">
+  <data encoding="base64" compression="zlib">
+   eJztwTEBAAAAwqD1T20ND6AAAAAAAAAAAAAA4MMAKtwAAQ==
+  </data>
+ </layer>
+ <layer name="under coins" width="211" height="13">
+  <data encoding="base64" compression="zlib">
+   eJztwTEBAAAAwqD1T20ND6AAAAAAAAAAAAAA4MMAKtwAAQ==
+  </data>
+ </layer>
+</map>

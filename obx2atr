@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use POSIX;
+
+my $data = join '', <>;
+
+my $code = "NICKATARI";
+my $sum = 0;
+$sum += ord($_) for $code =~ /(.)/g;
+my $magic = 0x0296;
+my $sectorsize = 128;
+my $sectorsizelo = $sectorsize & 0xFF;
+my $sectorsizehi = $sectorsize >> 8;
+my $parcount = POSIX::ceil((length $data) / $sectorsize) * $sectorsize / 0x10;
+my $parcountlo = $parcount & 0xFF;
+my $parcounthi = $parcount >> 8;
+
+my @header = (
+0x96, 0x02, # magic
+#0xe8, 0x2c, # num paragraphs
+#0x00, 0x01, # sector size
+#0xd0, 0x59, # num paragraphs
+#0x80, 0x00, # sector size
+$parcountlo, $parcounthi, # num paragraphs
+$sectorsizelo, $sectorsizehi, # sector size
+0x00,       # extended paragraphs
+0x00, 0x00, 0x00, 0x00, # 32 bit authentication crc
+0x00, 0x00, 0x00, 0x00, # unused
+0x00,       # bit 0: write protect
+            # bit 1: sealed/authenticated atr
+            # bit 2..7: unused
+);
+
+my $header = pack "C16", @header;
+
+print $header, $data;
+
+warn "LENGTH: ", (length $data), "\n";
+warn "PADDING: ", ($parcount * 0x10 - length $data), "\n";
+
+print "\0" x ($parcount * 0x10 - length $data);
+#print "\0" x (183936/2 - length $data);
