@@ -288,14 +288,15 @@ image
 
 
 >>> for (0 .. 5) {
+    :7 sta WSYNC
+    mva >[chset+$400*1] CHBASE
+    :8 sta WSYNC
+    mva >[chset+$400*2] CHBASE
     :8 sta WSYNC
     mva >[chset+$400*3] CHBASE
     :8 sta WSYNC
     mva >[chset+$400*0] CHBASE
-    :8 sta WSYNC
-    mva >[chset+$400*1] CHBASE
-    :8 sta WSYNC
-    mva >[chset+$400*2] CHBASE
+    sta WSYNC
 >>> }
 
 blank
@@ -691,8 +692,6 @@ drawedgetiles
     lda drawpos+1
     sta mappos
     and #3
-    tax
-    lda tilefrac,x
     sta mapfrac
     lda drawpos+2
     and #$F
@@ -708,8 +707,7 @@ edge
     ldy #0
     lda (mappos),y
     and #$1f
-    tax
-    lda tilex4,x
+    :2 asl @
     add mapfrac
 
     ldx >[scr+$F00]

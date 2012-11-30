@@ -25,7 +25,7 @@ sub pal {
     my %pal;
     for ([\@reds, 1], [\@greens, 3], [\@blues, 2], [\@greys, 0]) {
         my ($hue, $val) = @$_;
-        $pal{join ",", @{$hue->[$_]}} = [$val, $_] for 0 .. 3;
+        $pal{join ",", @{$hue->[$_]}, 255} = [$val, $_] for 0 .. 3;
     }
     $pal{$_} = $pal{$_}[0] << 2 | $pal{$_}[1] for keys %pal;
     return \%pal;
@@ -50,23 +50,6 @@ sub readimage {
     return $image;
 }
 
-sub dump_tile {
-    my ($tileset, $image, $tile) = @_;
-    my $imagewidth = $tileset->{imagewidth} or die;
-    my $imageheight = $tileset->{imageheight} or die;
-    my $tilewidth = $tileset->{tilewidth} or die;
-    my $tileheight = $tileset->{tileheight} or die;
-    my $dy = int($imagewidth / $tilewidth);
-    my $xo = $tilewidth * (($tile - 1) % $dy);
-    my $yo = $tileheight * int(($tile - 1) / $dy);
-    warn "TILE: $tile: DY: $dy XO: $xo YO: $yo\n";
-    my @pixels;
-    for (my $x = $xo; $x < $xo + $tilewidth; $x += 4) {
-        push @pixels, $image->GetPixels(x => $x, y => $yo, width => 4, height => $tileheight);
-    }
-    return @pixels;
-}
-
 sub chline {
     my (@bmp) = @_;
     my $hue = ($bmp[0]<<4&0xC0)|($bmp[1]<<2&0x30)|($bmp[2]<<0&0xC)|($bmp[3]>>2&0x3);
@@ -83,11 +66,18 @@ sub dump_chsets {
     for (my $ch = 0; $ch < 512; ++$ch) {
 	my $x = 4 * ($ch % 32);
 	my $y = 16 * int(($ch % 128) / 32) + 4 * int($ch / 128);
+        warn "CH: $ch X: $x Y: $y\n";
 	push @pixels, $image->GetPixels(x => $x, y => $y, width => 4, height => 4);
     }
+    warn "PIXEL COUNT: ", scalar @pixels, "\n";
     $_ >>= 8 for @pixels;
     my @bmp;
-    push @bmp, $pal->{join ",", splice @pixels, 0, 3} || 0 while @pixels;
+    while (@pixels) {
+        my $key = join ",", splice @pixels, 0, 4;
+        my $color = $pal->{$key};
+        defined $color or warn "COLOR NOT FOUND: $key\n";
+        push @bmp, $color;
+    }
     my @chset;
     push @chset, chline(splice @bmp, 0, 4) while @bmp;
     my $ch = 0;
