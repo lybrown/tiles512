@@ -37,16 +37,16 @@ lum1 org *+1
 lum2 org *+1
 lum3 org *+1
 
-inflate_zp equ $f0
+inflate_zp equ $F0
 
 main equ $2000
 dlist equ $3F00
 song equ $4000
 mapcopy equ $6000
 player equ $6000
-scr equ $a000
-map equ $b000
-chset equ $e000
+scr equ $A000
+map equ $B000
+chset equ $E000
 buffer equ $8000
 
     ift ntsc
@@ -67,6 +67,13 @@ bank2 equ $8A
 bank3 equ $8E
 bankmain equ $FE
 velstill equ 15
+luma1 equ $2
+luma2 equ $8
+luma3 equ $C
+chroma1 equ $82
+chroma2 equ $B2
+chroma3 equ $F2
+false equ 0
 
     org main
 relocate
@@ -81,8 +88,8 @@ relocate
     sta PORTB
     mwa #buffer+5 ld+1
     mwa buffer st+1
-ld  lda $ffff
-st  sta $ffff
+ld  lda $FFFF
+st  sta $FFFF
     inc ld+1
     sne:inc ld+2
     inc st+1
@@ -127,9 +134,6 @@ clearst
     rts
 banks
     :4 dta bank0+[[#%4]<<2]
-    ;:64 dta [[#*4]&$e0] | [[#*2]&$f] | $01
-;inflate
-;    icl 'inflate.asm'
 disable_antic
     lda #0
     cmp:rne VCOUNT
@@ -151,17 +155,13 @@ preinit
     ift ntsc
     :25 dta $54+[#!=24]*$20,a(scr+#<<6)
     els
-    :31 dta $D4+[#==0]*$20,a(scr+#<<6)
+    :31 dta $54+[#==0]*$20,a(scr+#<<6)
     eif
 jvb
     dta $41,a(dlist)
     icl 'sprites.asm'
     icl 'assets.asm'
     ini preinit
-    ;org song
-    ;ins 'ruffw1.tm2',6
-    ;org player
-    ;icl 'tmc2play.asm'
     opt h-
     ins 'Super_Mario_Brothers_Over.obx'
     opt h+
@@ -179,8 +179,8 @@ jvb
     sta SIZEP2
     sta SIZEP3
     mva #$11 PRIOR
-    mva #$ff SIZEM
-    mva #$3f COLPM0
+    mva #$FF SIZEM
+    mva #$3F COLPM0
     sta COLPM1
     sta COLPM2
     sta COLPM3
@@ -193,22 +193,8 @@ jvb
     mva #hx+24 HPOSP3
     sta HPOSM0
     mva #2 lumi
-    mva #bank0 PORTB
-    mwa #dli $FFFA
-    mva #bank1 PORTB
-    mwa #dli $FFFA
-    mva #bank2 PORTB
-    mwa #dli $FFFA
-    mva #bank3 PORTB
-    mwa #dli $FFFA
-    mva #bankmain PORTB
-    mwa #dli $FFFA
-    mva #$80 NMIEN
-    ;lda #$70
-    ;ldy <song
-    ;ldx >song
-    ;jsr player+$300 ; init
-    jsr $c80
+    ; TODO: relocate music
+    jsr $C80
 
     ift ntsc
     ;mva #6 tempo
@@ -222,7 +208,7 @@ die
     sta DMACTL
     sta GRACTL
 
-    mva #$ff veldir
+    mva #$FF veldir
     mva #bankmain PORTB
     mva #japex jframe
     mva #26 ground
@@ -232,9 +218,8 @@ die
     mwa #0 coarse
     mva >chset CHBASE
 
-    ;lda #0
-    ;tax
-    ;jsr player+$300 ; init
+    ; reset music
+    jsr $C80
 
 initdraw
     jsr drawedgetiles
@@ -248,11 +233,11 @@ initdraw
     lda #bottomvcount
     cmp:rne VCOUNT
     mwa #jvb DLISTL
-    mva #$3e DMACTL
+    mva #$3E DMACTL
     jmp blank
 showframe
     inc:lda framecount
-    and #$c
+    and #$C
     ora >chset
     sta CHBASE
     mva pmbank PORTB
@@ -266,9 +251,6 @@ showframe
     cmp:rne VCOUNT
     sta WSYNC
     ; line 7
-    mwa #dlist DLISTL
-    ; Pal Blending per FJC, popmilo, XL-Paint Max, et al.
-    ; http://www.atariage.com/forums/topic/197450-mode-15-pal-blending/
     ;:5 nop
     ldx #$82
     ldy #$B2
@@ -283,49 +265,44 @@ showframe
     ift !ntsc
     sta VSCROL
     eif
-    jmp blank
-    ; Full-screen vertical fine scrolling per Rybags:
-    ; http://www.atariage.com/forums/topic/154718-new-years-disc-2010/page__st__50#entry1911485
-    ;mva lum1 COLPF0
     stx COLPF0
     mva lum2 COLPF1
     mva lum3 COLPF2
 image
-    ;:5 nop
-    ldx #$82
-    ldy #$B2
-    lda #$F2
+    ift false
+    ldx #chroma1
+    ldy #chroma2
+    lda #chroma3
     sta WSYNC
     stx COLPF1
     sta COLPF0
     sty COLPF2
     sta WSYNC
-    lda lum1
-    sta COLPF0
-    mva lum2 COLPF1
-    mva lum3 COLPF2
-    lda VCOUNT
-    cmp #bottomvcount
-    bne image
-    ;:4 nop
-    ldx #$82
-    ldy #$B2
-    lda #$F2
-    stx COLPF1
-    sta COLPF0
-    sta WSYNC
-    sty COLPF2
-    lda lum1
-    sta WSYNC
-    ift !ntsc
-    sta COLPF0
-    mva lum2 COLPF1
-    mva lum3 COLPF2
+    mva #luma1 COLPF1
+    mva #luma2 COLPF2
+    mva #luma3 COLPF3
+    lda #123
+    cmp VCOUNT
+    bcs image
     eif
+
+
+>>> for (0 .. 5) {
+    :8 sta WSYNC
+    mva >[chset+$400*3] CHBASE
+    :8 sta WSYNC
+    mva >[chset+$400*0] CHBASE
+    :8 sta WSYNC
+    mva >[chset+$400*1] CHBASE
+    :8 sta WSYNC
+    mva >[chset+$400*2] CHBASE
+>>> }
+
 blank
 
     lda #124
     cmp:rne VCOUNT
+    mwa #dlist DLISTL
     ift ntsc
     mva #0 GRACTL
     sta GRAFP0
@@ -386,7 +363,7 @@ xmove
     tax
     lda veldirtable,x
     sta veldir
-    and #$1f
+    and #$1F
     ldy #0
     cmp #velstill
     scc:ldy #48
@@ -410,7 +387,7 @@ adjust
 checkpit
     bmi nopit
     cmp #30
-    scc:jmp floor ; die
+    scc:jmp die
 nopit
 
     ; foottile = map[xpos_w>>6 + herox + mapy<<8]
@@ -421,7 +398,7 @@ nopit
     asl @
     rol footpos
     lda mapy
-    and #$1f
+    and #$1F
     adc >map
     sta footpos+1
     ldy #herox ; herox offset
@@ -430,7 +407,7 @@ floor
     sta foottile
 
     ; debug
-    ;and #$f8
+    ;and #$F8
     ;ora #7
     ;sta (footpos),y
 
@@ -569,7 +546,7 @@ update_display
 
     ; HSCROL = table[(xpos & $C) >> 2]
     lda xpos
-    and #$c
+    and #$C
     :2 lsr @
     tax
     mva hscroltable,x HSCROL
@@ -601,13 +578,17 @@ update_display
     ; update high bytes of dlist
     ; dlist{hi}[i] = scrhitable[(scrpos & $FC0) >> 6]
     lda scrpos+1
-    and #$f
+    and #$F
     asl tmp
     rol @
     asl tmp
     rol @
     tax
     :31 dta {lda a:,x},a(scrhitable+#),{sta a:},a(dlist+2+3*#)
+
+    jsr drawedgetiles
+
+    jmp showframe
 
 replacetile
     ; skip if out of time this frame
@@ -669,14 +650,14 @@ coin
     lda checktile
     and #7
     cmp #0
-    sne:ldy #$b
+    sne:ldy #$B
     cmp #5
-    sne:ldy #$c
+    sne:ldy #$C
     sty cointype
     cpy #0
     beq coindone
     lda #$23
-    ldx #$ff
+    ldx #$FF
     ;jsr player+$300 ; play sfx
     ;jsr init
 coindone
@@ -685,8 +666,8 @@ coindone
     ; blit to scr
     clc
     lda tilechar
-    :15 dta {ldy #},[[#&$c]>>2]|[[#&3]<<6],{sta (),y},reppos,{adc #},1
-    ldy #$c3
+    :15 dta {ldy #},[[#&$C]>>2]|[[#&3]<<6],{sta (),y},reppos,{adc #},1
+    ldy #$C3
     sta (reppos),y
 
 replacedone
@@ -714,7 +695,7 @@ drawedgetiles
     lda tilefrac,x
     sta mapfrac
     lda drawpos+2
-    and #$f
+    and #$F
     lsr @
     ror mappos
     lsr @
@@ -726,9 +707,9 @@ drawedgetiles
 edge
     ldy #0
     lda (mappos),y
-    and #7
+    and #$1f
     tax
-    lda tilex16,x
+    lda tilex4,x
     add mapfrac
 
     ldx >[scr+$F00]
@@ -739,7 +720,7 @@ edge
     tax
     ldy #4
 slowblit
-    stx:inx $FFFF
+    stx $FFFF
     lda #linewidth
     add:sta slowblit+1
     scc:mva >scr slowblit+2
@@ -750,13 +731,10 @@ slowblit
 fastblit
     sta (drawpos+1),y
     ldy #$40
-    add #1
     sta (drawpos+1),y
     ldy #$80
-    adc #1
     sta (drawpos+1),y
     ldy #$C0
-    adc #1
     sta (drawpos+1),y
 
 donetile
@@ -772,15 +750,12 @@ donetile
     bcc edge
     rts
 
-dli
-    rti
-
-tilex16
-    :8 dta #*16
+tilex4
+    :32 dta #*4
 tilefrac
     :4 dta #*4
 scrhitable
-    :128 dta >[scr+[[#*linewidth]&$fff]]
+    :128 dta >[scr+[[#*linewidth]&$FFF]]
 
 >>> my $jsteps = 39;
 >>> my $jextra = 32;
@@ -831,7 +806,7 @@ veldirtable
 veltablelo
     :31 dta [#*16/15]-16
 veltablehi
-    :31 dta [#<15]*$ff
+    :31 dta [#<15]*$FF
 bank_dir_still_midair
 >>> for my $dir (0, 1) {
 >>> for my $still (0, 1) {
@@ -849,7 +824,7 @@ pmbase_dir_still_midair
 pmbasetable
     :8 dta $40+8*#
 hscroltable
-    :4 dta $f,$e,$d,$c
+    :4 dta $F,$E,$D,$C
 lumtable
     dta 0,4,8,10
     dta 0,6,8,10
