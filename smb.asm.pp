@@ -163,7 +163,7 @@ jvb
     icl 'assets.asm'
     ini preinit
     opt h-
-    ins 'Super_Mario_Brothers_Over.obx'
+    ins 'Super_Mario_Brothers_Over.bin'
     opt h+
 
     org main

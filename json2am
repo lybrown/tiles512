@@ -82,7 +82,7 @@ sub dump_chsets {
     my @pixels;
     for (my $ch = 0; $ch < 512; ++$ch) {
 	my $x = 4 * ($ch % 32);
-	my $y = ((16 * int($ch / 32)) % 64) + 4 * int($ch / 128);
+	my $y = 16 * int(($ch % 128) / 32) + 4 * int($ch / 128);
 	push @pixels, $image->GetPixels(x => $x, y => $y, width => 4, height => 4);
     }
     $_ >>= 8 for @pixels;

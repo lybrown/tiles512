@@ -2,7 +2,7 @@
 
 smb.run:
 diskloader.boot:
-smb.obx: assets.asm tmc2play.asm sprites.asm
+smb.obx: assets.asm sprites.asm Super_Mario_Brothers_Over.bin
 diskloader.obx: smb.xex
 assets.asm: level.json pal.ppm tileset.png json2am
 	./json2am $^ > $@
