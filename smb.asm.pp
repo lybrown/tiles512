@@ -67,9 +67,9 @@ bank2 equ $8A
 bank3 equ $8E
 bankmain equ $FE
 velstill equ 15
-luma1 equ $2
-luma2 equ $8
-luma3 equ $C
+luma1 equ $4
+luma2 equ $A
+luma3 equ $E
 chroma1 equ $82
 chroma2 equ $B2
 chroma3 equ $F2
@@ -239,7 +239,7 @@ showframe
     inc:lda framecount
     and #$C
     ora >chset
-    sta CHBASE
+    ;sta CHBASE
     mva pmbank PORTB
     lda blink
     seq:dec blink
@@ -269,7 +269,7 @@ showframe
     mva lum2 COLPF1
     mva lum3 COLPF2
 image
-    ift false
+    ift !false
     ldx #chroma1
     ldy #chroma2
     lda #chroma3
@@ -286,8 +286,8 @@ image
     bcs image
     eif
 
-
->>> for (0 .. 5) {
+    ift false
+>>> for (0 .. 7) {
     :7 sta WSYNC
     mva >[chset+$400*1] CHBASE
     :8 sta WSYNC
@@ -298,11 +298,9 @@ image
     mva >[chset+$400*0] CHBASE
     sta WSYNC
 >>> }
-
+    eif
 blank
 
-    lda #124
-    cmp:rne VCOUNT
     mwa #dlist DLISTL
     ift ntsc
     mva #0 GRACTL
@@ -753,11 +751,11 @@ tilex4
 tilefrac
     :4 dta #*4
 scrhitable
-    :128 dta >[scr+[[#*linewidth]&$FFF]]
+    :256 dta >[scr+[[#*linewidth]&$FFF]]
 
 >>> my $jsteps = 39;
 >>> my $jextra = 32;
->>> my $jheight = 6;
+>>> my $jheight = 5;
 >>> my $jhalf = int($jsteps / 2);
 >>> my $japex = $jextra + $jhalf;
 >>> my $jsoff = 11;
