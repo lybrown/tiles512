@@ -54,7 +54,7 @@ sub frame {
     my ($image, $x, $y, $pmbase, $rev, $bank) = @_;
     my @pixels = $image->GetPixels(x => $x, y => $y,
         width => 32, height => $height);
-    my @bw = map $pixels[$_*3]?1:0, 0 .. @pixels/3-1;
+    my @bw = map $pixels[$_*4]?1:0, 0 .. @pixels/4-1;
     @bw = reverse @bw if $rev;
     my @range = 0 .. $height-1;
     @range = reverse @range if $rev;
@@ -75,11 +75,11 @@ sub frame {
 sub main {
     my $image = readimage($ARGV[0]);
     for my $rev (0, 1) {
-        print "  ini setbank", $rev+1, "\n";
+        print "  ini setbank", (1-$rev)+1, "\n";
         print "  ini clearbank\n";
         for my $x (0 .. 7) {
             my $pmbase = 0x4000 + $x * 0x800;
-            frame($image, $x*32, 0, $pmbase, $rev, $rev+1);
+            frame($image, $x*30, 0, $pmbase, $rev, $rev+1);
         }
     }
     print "  ini setbank3\n";

@@ -54,8 +54,10 @@ Tiles
 
 * 4x4 Antic Mode 4 or effectively 16x16 pixels
 * Effectively 16 colors
-* Twiddle CHBASE every 8 scanlines so each row of the tileset can use a different character set
-* 32 different tiles fit into four 128 entry [character sets](https://github.com/lybrown/smb/raw/master/tileset.png)
+* 32 different tiles fit into four 128-entry
+  [character sets](https://github.com/lybrown/smb/raw/master/tileset.png)
+* Twiddle CHBASE every 8 scanlines so each row of the tileset can use a
+  different 128-entry character set
 * 4K memory
 
 Map
@@ -63,10 +65,9 @@ Map
 
 * 512x16 [tiles](https://github.com/lybrown/smb/blob/master/screenshots/level.png)
 * Created in Tiled Qt
-* 3 layers: visual, blockages, under coins
+* 2 layers: visual, blockages
 * One byte per tile
-  * 3 bits for tile
-  * 3 bits for under coin tile
+  * 5 bits for tile
   * 1 bit for horizontal blockage
   * 1 bit for vertical blockage
 * 8K memory
@@ -97,10 +98,19 @@ Music
 
 * SAP by Sim Piko
 
+Related Efforts
+---------------
+
+* analmux
+  * http://www.atariage.com/forums/topic/150778-super-mario-bros-on-atari-8bit/page__hl__%20analmux%20%20mario
+* prObe
+  * http://atarionline.pl/v01/index.php?ct=katalog&sub=S&tg=Super+Mario+Bros#Super_Mario_Bros
+
 Thanks
 ------
 
 * Super Mario Brothers
+  * http://en.wikipedia.org/wiki/Super_Mario_Bros.
 * Sim Piko for Super Mario Brothers SAP
   * http://asma.atari.org/asmadb/search.php?q1=1&q2=Super+Mario+Brothers&q4=1&q3=1
 * flashjazzcat, popmilo, XL-Paint Max, et. al. for PAL Blending
@@ -112,8 +122,6 @@ Thanks
   * http://www.virtualdub.org/altirra.html
 * fox for xasm
   * http://atariarea.krap.pl/x-asm/
-* jaskier for TMC2
-  * http://jaskier.atari8.info/
 * AtariAge Forums
   * http://www.atariage.com/forums/forum/12-atari-8-bit-computers/
 * Tiled Qt

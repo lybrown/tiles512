@@ -36,6 +36,7 @@ lumi org *+1
 lum1 org *+1
 lum2 org *+1
 lum3 org *+1
+drawpos org *+1
 
 inflate_zp equ $F0
 
@@ -67,12 +68,12 @@ bank2 equ $8A
 bank3 equ $8E
 bankmain equ $FE
 velstill equ 15
-luma1 equ $4
+luma1 equ $8
 luma2 equ $A
 luma3 equ $E
-chroma1 equ $82
+chroma1 equ $86
 chroma2 equ $B2
-chroma3 equ $F2
+chroma0 equ $F2
 false equ 0
 
     org main
@@ -200,13 +201,17 @@ jvb
     ;mva #6 tempo
     eif
 
+    mva #bankmain PORTB
+    mwa #vbi $FFFA
+
 die
     lda #0
+    sta NMIEN
+    sta DMACTL
+    sta GRACTL
     sta edgeoff
     sta lastjump
     sta midair
-    sta DMACTL
-    sta GRACTL
 
     mva #$FF veldir
     mva #bankmain PORTB
@@ -234,12 +239,15 @@ initdraw
     cmp:rne VCOUNT
     mwa #jvb DLISTL
     mva #$3E DMACTL
+    mva #$40 NMIEN
+    jmp *
+vbi
+    pla
+    pla
+    pla
     jmp blank
 showframe
-    inc:lda framecount
-    and #$C
-    ora >chset
-    ;sta CHBASE
+    inc framecount
     mva pmbank PORTB
     lda blink
     seq:dec blink
@@ -247,61 +255,54 @@ showframe
     and #2
     sne:ldx #3
     stx GRACTL
+preraster
+    ldy jframe
+    ldx jumprow,y
+    mva rowtablelo,x rowjmp+1
+    mva rowtablehi,x rowjmp+2
+    mva >chset CHBASE
+    mva #chroma0 COLPF0
+    mva #chroma1 COLPF1
+    mva #chroma2 COLPF2
     lda #3
     cmp:rne VCOUNT
+line7
     sta WSYNC
-    ; line 7
-    ;:5 nop
-    ldx #$82
-    ldy #$B2
-    lda #$F2
+    lda >chset
+line8_firstbadline
+    sta WSYNC
+    ldx #luma1
+    ldy #luma2
+line9_firstgoodline
+    sta WSYNC
     stx COLPF1
-    sta COLPF0
     sty COLPF2
-    sta WSYNC
-    lda #7
-    ldx lum1
-    sta WSYNC
-    ift !ntsc
-    sta VSCROL
-    eif
-    stx COLPF0
-    mva lum2 COLPF1
-    mva lum3 COLPF2
-image
-    ift !false
+    mvx #7 VSCROL
     ldx #chroma1
     ldy #chroma2
-    lda #chroma3
+rowjmp
+    jmp row1
+
+>>> for $row (0 .. 15) {
+row<<<$row>>>
+    ; possible badline
     sta WSYNC
+    sta CHBASE
     stx COLPF1
-    sta COLPF0
     sty COLPF2
+    ; goodline
     sta WSYNC
-    mva #luma1 COLPF1
-    mva #luma2 COLPF2
-    mva #luma3 COLPF3
-    lda #123
-    cmp VCOUNT
-    bcs image
-    eif
-
-    ift false
->>> for (0 .. 7) {
-    :7 sta WSYNC
-    mva >[chset+$400*1] CHBASE
-    :8 sta WSYNC
-    mva >[chset+$400*2] CHBASE
-    :8 sta WSYNC
-    mva >[chset+$400*3] CHBASE
-    :8 sta WSYNC
-    mva >[chset+$400*0] CHBASE
-    sta WSYNC
+    mva #lum1 COLPF1
+    mva #lum2 COLPF2
+    lda >[chset+$400*<<<($row+1)>>2&3>>>]
+    ldx #chroma1
+    ldy #chroma2
+>>>   if ($row == 15) {
+    jmp row0
+>>>   }
 >>> }
-    eif
-blank
 
-    mwa #dlist DLISTL
+blank
     ift ntsc
     mva #0 GRACTL
     sta GRAFP0
@@ -310,6 +311,7 @@ blank
     sta GRAFP3
     sta GRAFM
     eif
+    mwa #dlist DLISTL
 
 ymove
     lda PORTA
@@ -461,6 +463,7 @@ start
     sta laststart
     bcs startdone ; didn't just press start
 
+    mva #0 NMIEN
     mva #0 DMACTL
     cmp:rne VCOUNT
     sta GRACTL
@@ -589,109 +592,22 @@ update_display
 
     jmp showframe
 
-replacetile
-    ; skip if out of time this frame
-    ;lda VCOUNT
-    ;cmp #$88
-    ;scc:jmp replacedone
-
-    ; skip if x blocked
-    lda foottile
-    and #$80
-    seq:jmp replacedone
-
-    ; checkpos = footpos - ((framecount&1) ? 0 : $200)
-    lda framecount
-    ror @
-    php
-    mva footpos checkpos
-    lda footpos+1
-    scs:sbc #1 ; -2 because carry clear
-    sta checkpos+1
-
-    ; reppos = scr + (((scrpos-jump{lo}+$500)
-    ;          - ((framecount&1) ? 0 : $100)) & $FFC)
-    ldx jframe
-    lda scrpos
-    sub jumpscrlo,x
-    and #$FC
-    php
-    add #[herox*4]
-    sta reppos
-    lda scrpos+1
-    sbc #-5+1*ntsc
-    plp
-    adc #0
-    plp
-    sbc #0 ; -1 if carry clear
-    and #$F
-    add >scr
-    sta reppos+1
-
-    ; tilechar = map[checkpos]&(7<<3)<<1
-    ; map[checkpos] = map[checkpos]&$F8 | map[checkpos]&(7<<3)>>3
-    ldy #herox
-    lda (checkpos),y
-    sta checktile
-    and #7<<3
-    sne:jmp replacedone
-    asl @
-    sta tilechar
-    :4 lsr @
-    sta tmp
-    lda checktile
-    and #$F8
-    ora tmp
-    sta (checkpos),y
-
-coin
-    ldy #0
-    lda checktile
-    and #7
-    cmp #0
-    sne:ldy #$B
-    cmp #5
-    sne:ldy #$C
-    sty cointype
-    cpy #0
-    beq coindone
-    lda #$23
-    ldx #$FF
-    ;jsr player+$300 ; play sfx
-    ;jsr init
-coindone
-
-
-    ; blit to scr
-    clc
-    lda tilechar
-    :15 dta {ldy #},[[#&$C]>>2]|[[#&3]<<6],{sta (),y},reppos,{adc #},1
-    ldy #$C3
-    sta (reppos),y
-
-replacedone
-
-    jsr drawedgetiles
-
-    jmp showframe
-
-drawpos equ $70
 drawedgetiles
     ; drawpos = scr + coarse + edgeoff
     lda coarse
     add edgeoff
-    sta drawpos+1
+    sta drawpos
     lda coarse+1
     adc >scr
-    sta drawpos+2
+    sta drawpos+1
 
     ; mapfrac = (drawpos & 3) << 2
     ; mappos = map + (drawpos & $FFF) >> 2
-    lda drawpos+1
+    lda drawpos
     sta mappos
     and #3
     sta mapfrac
-    lda drawpos+2
+    lda drawpos+1
     and #$F
     lsr @
     ror mappos
@@ -709,10 +625,10 @@ edge
     add mapfrac
 
     ldx >[scr+$F00]
-    cpx drawpos+2
+    cpx drawpos+1
     bne fastblit
     stx slowblit+2
-    mvx drawpos+1 slowblit+1
+    mvx drawpos slowblit+1
     tax
     ldy #4
 slowblit
@@ -725,20 +641,20 @@ slowblit
     jmp donetile
 
 fastblit
-    sta (drawpos+1),y
+    sta (drawpos),y
     ldy #$40
-    sta (drawpos+1),y
+    sta (drawpos),y
     ldy #$80
-    sta (drawpos+1),y
+    sta (drawpos),y
     ldy #$C0
-    sta (drawpos+1),y
+    sta (drawpos),y
 
 donetile
     lda #1
-    add drawpos+2
+    add drawpos+1
     cmp >[scr+$1000]
     sne:lda >scr
-    sta drawpos+2
+    sta drawpos+1
 
     lda #2
     add:sta mappos+1
@@ -755,7 +671,7 @@ scrhitable
 
 >>> my $jsteps = 39;
 >>> my $jextra = 32;
->>> my $jheight = 5;
+>>> my $jheight = 4;
 >>> my $jhalf = int($jsteps / 2);
 >>> my $japex = $jextra + $jhalf;
 >>> my $jsoff = 11;
@@ -775,6 +691,8 @@ jumpmap
 >>> printf "    dta %d\n", 2*int($_) for @traj;
 jumpvscrol
 >>> printf "    dta %d\n", int(($_)*32)&6 for @traj;
+jumprow
+>>> printf "    dta %d\n", int(($_)*16+1)&15 for @traj;
 ground2scr
     :256 dta #/2
 
@@ -821,6 +739,7 @@ pmbasetable
     :8 dta $40+8*#
 hscroltable
     :4 dta $F,$E,$D,$C
+    ;:4 dta 11,10,9,8
 lumtable
     dta 0,4,8,10
     dta 0,6,8,10
@@ -830,6 +749,9 @@ lumtable
     dta 0,8,10,14
     dta 0,8,12,14
     dta 0,10,12,14
-
+rowtablelo
+>>> printf "    dta <row$_\n" for 0 .. 15;
+rowtablehi
+>>> printf "    dta >row$_\n" for 0 .. 15;
 
     run main

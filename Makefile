@@ -25,7 +25,8 @@ atari = /c/Documents\ and\ Settings/lybrown/Documents/Altirra.exe
 	cp $< $@
 
 %.asm.pl: %.asm.pp
-	perl -pe 's/^\s*>>>// or s/(.*)/print <<'\''EOF'\'';\n$$1\nEOF/' $< > $@
+	echo 'sub interp {($$_=$$_[0])=~s/<<<(.*?)>>>/eval $$1/ge;print}' > $@
+	perl -pe 's/^\s*>>>// or s/(.*)/interp <<'\''EOF'\'';\n$$1\nEOF/;' $< >> $@
 
 %.asm: %.asm.pl
 	perl $< > $@
