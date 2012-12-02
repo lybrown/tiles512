@@ -68,10 +68,10 @@ bank2 equ $8A
 bank3 equ $8E
 bankmain equ $FE
 velstill equ 15
-luma1 equ $8
-luma2 equ $A
-luma3 equ $E
-chroma1 equ $86
+luma1 equ $4
+luma2 equ $E
+luma3 equ $8
+chroma1 equ $84
 chroma2 equ $B2
 chroma0 equ $F2
 false equ 0
@@ -260,23 +260,21 @@ preraster
     ldx jumprow,y
     mva rowtablelo,x rowjmp+1
     mva rowtablehi,x rowjmp+2
-    mva >chset CHBASE
-    mva #chroma0 COLPF0
-    mva #chroma1 COLPF1
-    mva #chroma2 COLPF2
-    lda #3
-    cmp:rne VCOUNT
+    mva chbasetable,x CHBASE
+    ;mvx #$F COLBK
+    mvx #chroma0 COLPF0
+    mvx #chroma1 COLPF1
+    mvx #chroma2 COLPF2
+    ldx #3
+    cpx:rne VCOUNT
 line7
-    sta WSYNC
-    lda >chset
+    stx WSYNC
 line8_firstbadline
-    sta WSYNC
-    ldx #luma1
-    ldy #luma2
+    stx WSYNC
 line9_firstgoodline
-    sta WSYNC
-    stx COLPF1
-    sty COLPF2
+    stx WSYNC
+    mvx #luma1 COLPF1
+    mvx #luma2 COLPF2
     mvx #7 VSCROL
     ldx #chroma1
     ldy #chroma2
@@ -292,15 +290,13 @@ row<<<$row>>>
     sty COLPF2
     ; goodline
     sta WSYNC
-    mva #lum1 COLPF1
-    mva #lum2 COLPF2
-    lda >[chset+$400*<<<($row+1)>>2&3>>>]
+    mva #luma1 COLPF1
+    mva #luma2 COLPF2
+    lda >[chset+$400*[[<<<$row>>>+1]>>2&3]]
     ldx #chroma1
     ldy #chroma2
->>>   if ($row == 15) {
-    jmp row0
->>>   }
 >>> }
+    jmp row0
 
 blank
     ift ntsc
@@ -750,8 +746,10 @@ lumtable
     dta 0,8,12,14
     dta 0,10,12,14
 rowtablelo
->>> printf "    dta <row$_\n" for 0 .. 15;
+>>> print "    dta <row$_\n" for 0 .. 15;
 rowtablehi
->>> printf "    dta >row$_\n" for 0 .. 15;
+>>> print "    dta >row$_\n" for 0 .. 15;
+chbasetable
+>>> print "    dta >[chset+\$400*[[$_]>>2&3]]\n" for 0 .. 15;
 
     run main
