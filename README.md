@@ -113,6 +113,8 @@ Thanks
   * http://en.wikipedia.org/wiki/Super_Mario_Bros.
 * Sim Piko for Super Mario Brothers SAP
   * http://asma.atari.org/asmadb/search.php?q1=1&q2=Super+Mario+Brothers&q4=1&q3=1
+* Hendrik-Jan Schoenmaker for ShoeBox
+  * http://renderhjs.net/shoebox/
 * flashjazzcat, popmilo, XL-Paint Max, et. al. for PAL Blending
   * http://www.atariage.com/forums/topic/197450-mode-15-pal-blending/
 * Rybags for full-screen VSCROL technique and high HSCROL lighter DMA technique

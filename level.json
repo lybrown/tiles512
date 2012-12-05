@@ -42,11 +42,11 @@
  "tilesets":[
         {
          "firstgid":1,
-         "image":"tileset.png",
+         "image":"tileset-fullcolor.png",
          "imageheight":64,
          "imagewidth":128,
          "margin":0,
-         "name":"tileset.png",
+         "name":"tileset-fullcolor.png",
          "properties":
             {
 

@@ -52,29 +52,33 @@ buffer equ $8000
 
     ift ntsc
 bottomvcount equ 98
-hy equ 82
+hy equ 82/2
     els
 bottomvcount equ 122
-hy equ 114
+hy equ 114/2
     eif
 mapheight equ 16
 mapwidth equ 512
 linewidth equ $40
 herox equ 4
-hx equ 100+12-16
+hx equ 100+12-16+8
 bank0 equ $82
 bank1 equ $86
 bank2 equ $8A
 bank3 equ $8E
 bankmain equ $FE
 velstill equ 15
-luma1 equ $4
-luma2 equ $E
-luma3 equ $8
-chroma1 equ $84
-chroma2 equ $B2
-chroma0 equ $F2
 false equ 0
+chromabak equ $00
+chroma0 equ $88
+chroma1 equ $22
+chroma2 equ $B2
+chroma3 equ $B2
+lumabak equ $00
+luma0 equ $88
+luma1 equ $06
+luma2 equ $0E
+luma3 equ $0E
 
     org main
 relocate
@@ -179,20 +183,16 @@ jvb
     sta SIZEP1
     sta SIZEP2
     sta SIZEP3
-    mva #$11 PRIOR
+    mva #$31 PRIOR
     mva #$FF SIZEM
-    mva #$3F COLPM0
-    sta COLPM1
+    mva #$34 COLPM0
     sta COLPM2
+    mva #$F8 COLPM1
     sta COLPM3
     mva #hx HPOSP0
-    sta HPOSM3
-    mva #hx+8 HPOSP1
-    sta HPOSM2
-    mva #hx+16 HPOSP2
-    sta HPOSM1
-    mva #hx+24 HPOSP3
-    sta HPOSM0
+    sta HPOSP1
+    mva #hx+8 HPOSP2
+    sta HPOSP3
     mva #2 lumi
     ; TODO: relocate music
     jsr $C80
@@ -238,7 +238,7 @@ initdraw
     lda #bottomvcount
     cmp:rne VCOUNT
     mwa #jvb DLISTL
-    mva #$3E DMACTL
+    mva #$2E DMACTL
     mva #$40 NMIEN
     jmp *
 vbi
@@ -261,7 +261,7 @@ preraster
     mva rowtablelo,x rowjmp+1
     mva rowtablehi,x rowjmp+2
     mva chbasetable,x CHBASE
-    ;mvx #$F COLBK
+    mvx #chromabak COLBK
     mvx #chroma0 COLPF0
     mvx #chroma1 COLPF1
     mvx #chroma2 COLPF2
@@ -519,7 +519,7 @@ moving
     bpl notrunning
     lda:inc runframe
     :2 lsr @
-    and #7
+    and #3
     tax
     mva pmbasetable,x PMBASE
     jmp posedone

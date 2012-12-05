@@ -1,10 +1,13 @@
 # $Id: Makefile 36 2008-06-29 23:46:07Z lybrown $
 
 smb.run:
+blends.run:
+img.run:
 diskloader.boot:
 smb.obx: assets.asm sprites.asm Super_Mario_Brothers_Over.bin
 diskloader.obx: smb.xex
-assets.asm: level.json pal.ppm tileset.png json2am
+assets.asm: level.json pal.ppm tileset-fullcolor.png json2am
+#assets.asm: dizzy.json pal.ppm dizzy-map_bank.png json2am
 	./json2am $^ > $@
 sprites.asm: sprites.png sprites
 	./sprites $< > $@

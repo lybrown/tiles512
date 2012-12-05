@@ -5,6 +5,19 @@ use Image::Magick;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+my %colors = (
+    "0,0,0" => [0, 0],
+    "0,168,0" => [3, 2],
+    "60,188,252" => [1, 2],
+    "92,148,252" => [1, 1],
+    "128,208,16" => [3, 3],
+    "200,76,12" => [2, 2],
+    "216,40,0" => [2, 2],
+    "252,152,56" => [2, 3],
+    "252,188,176" => [2, 3],
+    "252,252,252" => [0, 3],
+);
+
 sub pal {
     my ($image) = @_;
     my %colors;
@@ -25,7 +38,7 @@ sub pal {
     my %pal;
     for ([\@reds, 1], [\@greens, 3], [\@blues, 2], [\@greys, 0]) {
         my ($hue, $val) = @$_;
-        $pal{join ",", @{$hue->[$_]}, 255} = [$val, $_] for 0 .. 3;
+        $pal{join ",", @{$hue->[$_]}} = [$val, $_] for 0 .. 3;
     }
     $pal{$_} = $pal{$_}[0] << 2 | $pal{$_}[1] for keys %pal;
     return \%pal;
@@ -73,8 +86,9 @@ sub dump_chsets {
     $_ >>= 8 for @pixels;
     my @bmp;
     while (@pixels) {
-        my $key = join ",", splice @pixels, 0, 4;
-        my $color = $pal->{$key};
+        my $key = join ",", splice @pixels, 0, 3;
+        #my $color = $pal->{$key};
+        my $color = $colors{$key}[0]<<2|$colors{$key}[1];
         defined $color or warn "COLOR NOT FOUND: $key\n";
         push @bmp, $color;
     }
