@@ -5,7 +5,6 @@ coarse org *+2
 mappos org *+2
 mapfrac org *+1
 tilepos org *+2
-tilechar org *+1
 mapy org *+1
 edgeoff org *+1
 tmp org *+1
@@ -15,6 +14,7 @@ reppos org *+2
 xpos org *+2
 xposlast org *+2
 jframe org *+1
+screeny org *+1
 veldir org *+1
 vel org *+1
 blink org *+1
@@ -36,7 +36,8 @@ lumi org *+1
 lum1 org *+1
 lum2 org *+1
 lum3 org *+1
-drawpos org *+1
+drawpos org *+2
+silent org *+1
 
 inflate_zp equ $F0
 
@@ -71,9 +72,9 @@ velstill equ 15
 false equ 0
 chromabak equ $00
 chroma0 equ $88
-chroma1 equ $22
-chroma2 equ $B2
-chroma3 equ $B2
+chroma1 equ $24
+chroma2 equ $B6
+chroma3 equ $0F
 lumabak equ $00
 luma0 equ $88
 luma1 equ $06
@@ -183,6 +184,7 @@ jvb
     sta SIZEP1
     sta SIZEP2
     sta SIZEP3
+    sta silent
     mva #$31 PRIOR
     mva #$FF SIZEM
     mva #$34 COLPM0
@@ -265,6 +267,7 @@ preraster
     mvx #chroma0 COLPF0
     mvx #chroma1 COLPF1
     mvx #chroma2 COLPF2
+    mvx #chroma3 COLPF3
     ldx #3
     cpx:rne VCOUNT
 line7
@@ -443,12 +446,19 @@ music
     sta lastselect
     bcs noselect ; didn't just press select
     lda #$FF
-    ;eor:sta silent
+    eor:sta silent
     ;:2 sta silent+1+#
+    beq noselect
+    lda #0
+    sta AUDC1
+    sta AUDC2
+    sta AUDC3
+    sta AUDC4
 noselect
     ;jsr player+$303 ; play music
     ;jsr play
-    jsr $603
+    lda silent
+    sne:jsr $603
 
 musicdone
 
@@ -556,10 +566,11 @@ update_display
     lda coarse
     add jumpscrlo,x
     sta scrpos
-    lda coarse+1
-    adc jumpscrhi,x
+    lda jumpscrhi,x
     ldx ground
-    add ground2scr,x
+    adc ground2scr,x
+    tay
+    add coarse+1
     sta scrpos+1
 
     ; update low bytes of dlist
@@ -583,6 +594,24 @@ update_display
     rol @
     tax
     :31 dta {lda a:,x},a(scrhitable+#),{sta a:},a(dlist+2+3*#)
+
+    ; TODO Use some other empty memory
+    ldx <skyline
+    lda >skyline
+>>> for $c (0 .. 3) {
+    iny
+    cpy #$12
+    bcs skydone
+    stx dlist+1+3*<<<$c*4>>>
+    sta dlist+2+3*<<<$c*4>>>
+    stx dlist+1+3*<<<$c*4+1>>>
+    sta dlist+2+3*<<<$c*4+1>>>
+    stx dlist+1+3*<<<$c*4+2>>>
+    sta dlist+2+3*<<<$c*4+2>>>
+    stx dlist+1+3*<<<$c*4+3>>>
+    sta dlist+2+3*<<<$c*4+3>>>
+>>> }
+skydone
 
     jsr drawedgetiles
 
@@ -616,9 +645,10 @@ drawedgetiles
 edge
     ldy #0
     lda (mappos),y
-    and #$1f
+    and #$3f
     :2 asl @
     add mapfrac
+    ;ora #$80
 
     ldx >[scr+$F00]
     cpx drawpos+1
@@ -664,6 +694,8 @@ tilefrac
     :4 dta #*4
 scrhitable
     :256 dta >[scr+[[#*linewidth]&$FFF]]
+skyline
+    :48 dta 0
 
 >>> my $jsteps = 39;
 >>> my $jextra = 32;

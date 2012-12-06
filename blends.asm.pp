@@ -58,7 +58,7 @@ row
 
     org dlist
     dta $42,a(ctext),$42,a(ltext),$42,a(btext)
-    :96 dta $4E,a(scr1),$4E,a(scr2)
+    :108 dta $4E,a(scr1),$4E,a(scr2)
     dta $41,a(dlist)
 
     org scr

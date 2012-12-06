@@ -11,14 +11,14 @@
    eJzt2ulSgzAUhuHUXVtR675Uvf+rNI7NTOYYshFIoO+PZ+yQEA6nHT5oXSmlVgAAAAAAAAAAAJmOtGPtpMAaQ9ehfuqfun4AWJKUa/KpdqadB9byXZ/NGr51qJ/6x6z/QrvMqB8AliR0Tc5Zq2S+HGL9VzOvfw79X49QPwAcgk0DNUzhOqBv7pD+pO7bV48Z2+y5xpem2wvNW490fAAAMK1Okf8AgD+536VjXjpVJv9vGjgXAGjVnDL1tsFzvGugL0sisz83/7eW2ucEALXJ36LN78n23zGOe689jDA3Rolz69v3d7vrnmQT8Tpm/b65vvldz+sQmbUp+8racvvtyv7c/Pf9HwUAtOpx4PjUQpn9pD1H1i/ntqi1/huuDHflp6zflbWx2Vu69pj8l/XL/N861H5vACDkRXvV3jLHQ1KyK/ZZPJTZ9nio/tBatbN3yv6n8GW4vU3W35e1fflr6h/6PY29vy/75fFd/Zf5b57739X/7wBqf34AwMVc2z6UO2NC47ad9mn5Uv7s2lnzzLbYZ3F73k4c0x6Pqd/MLVF/Dlf9tfofS+alOabcLuv3Za3cLuuXn43U+s3+oex33bvI/st7BFf+h/oPADV9I1mJ3vEelO0nAABjWynyvyT6AADT+wGP8bJY
   </data>
  </layer>
- <layer name="props" width="512" height="16">
+ <layer name="props" width="512" height="16" visible="0">
   <data encoding="base64" compression="zlib">
    eJzt2V2OgyAYBVDWYt3/Gic+NO0wKKD4w3BOYmIsoq3w3baE8NcrcQzYz5wCeqBWQVvmFNADtQraMqeAHqhV0JY5BfRArYK2zCmgB2oVtGVOAT24olZNF1zjCabMttX2yDX33uPWayM8s7Pep/wHeqBWMaIl9+dwzvg3p4AeqFWM5p39C/kPjEqt+hjhP+/RfWf/Qv4Do2pZq3Jr3Gfla03fre/jzDX8rXX63H5J/zXXrLleSb97Pq+jYynO/oX8B0bVQ63K1ftXKH8fNW35Lc7POZTlcGqtvfTcVlLZv5D/wKjurFWlv+NymS3/z5fK8FfI5/jaWnvu3Bb/qUxf+6nsj++pFeML6MGdtao0i+X/vbYyPIT1HN9aa8+de/Q5vc/fyv74ntbUfg8xvoCnSa3HzyvHr9jmwuvn2pX2U9s2Xq/eu+WewdO3uXJ/7Vic/7lzj4zNmrHVok3cHoB+pX6vHunjSD//QYvPE4B6P8N8M+E=
   </data>
  </layer>
- <layer name="under coins" width="512" height="16">
+ <layer name="fifth color" width="512" height="16" opacity="0.43">
   <data encoding="base64" compression="zlib">
-   eJztwQEBAAAAgJD+r+4ICgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYgAAAAQ==
+   eJzt2EEKgCAQBVCv0v0v2TYiCcdRSt8DdzLzhfiLSgEAAAAAAIg7LidjRs+c3t0ZM+SP786YMTs/wEpauvTt7r2bn+5l97f89Wzy92cCWNWoLp3VqSvmj+79Sv6MWX/MDwAAAADAPP7r0sL3AlC3Q0fu8EYAAAAAAAAAAAAAAAAAxjkBHVoQ5A==
   </data>
  </layer>
 </map>

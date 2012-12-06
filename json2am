@@ -12,10 +12,10 @@ my %colors = (
     "92,148,252" => [1, 1],
     "128,208,16" => [3, 3],
     "200,76,12" => [2, 2],
-    "216,40,0" => [2, 2],
+    "216,40,0" => [2, 0],
     "252,152,56" => [2, 3],
-    "252,188,176" => [2, 3],
-    "252,252,252" => [0, 3],
+    "252,188,176" => [2, 1],
+    "252,252,252" => [3, 3],
 );
 
 sub pal {
@@ -153,7 +153,7 @@ sub main {
     print "  ini relocate\n";
     overlay($map, \@mapcells, "visual", 1, 0, 0);
     overlay($map, \@mapcells, "props", 33, $layer->{width}, 6);
-    #overlay($map, \@mapcells, "under coins", 1, 0, 3);
+    overlay($map, \@mapcells, "fifth color", 32, 0, 5);
     dump_map(\@mapcells);
 }
 
