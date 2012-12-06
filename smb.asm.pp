@@ -78,7 +78,7 @@ chroma3 equ $0F
 lumabak equ $00
 luma0 equ $88
 luma1 equ $06
-luma2 equ $0E
+luma2 equ $0C
 luma3 equ $0E
 
     org main
@@ -595,7 +595,6 @@ update_display
     tax
     :31 dta {lda a:,x},a(scrhitable+#),{sta a:},a(dlist+2+3*#)
 
-    ; TODO Use some other empty memory
     ldx <skyline
     lda >skyline
 >>> for $c (0 .. 3) {
@@ -695,7 +694,7 @@ tilefrac
 scrhitable
     :256 dta >[scr+[[#*linewidth]&$FFF]]
 skyline
-    :48 dta 0
+    :48 dta 4
 
 >>> my $jsteps = 39;
 >>> my $jextra = 32;

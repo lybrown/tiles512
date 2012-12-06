@@ -7,14 +7,18 @@ $Data::Dumper::Indent = 1;
 
 my %colors = (
     "0,0,0" => [0, 0],
+    "0,68,0" => [3, 0],
+    "0,128,136" => [3, 1],
     "0,168,0" => [3, 2],
-    "60,188,252" => [1, 2],
+    "24,60,92" => [1, 2],
+    "60,188,252" => [1, 1],
     "92,148,252" => [1, 1],
     "128,208,16" => [3, 3],
+    "156,252,240" => [1, 3],
     "200,76,12" => [2, 2],
     "216,40,0" => [2, 0],
     "252,152,56" => [2, 3],
-    "252,188,176" => [2, 1],
+    "252,188,176" => [2, 3],
     "252,252,252" => [3, 3],
 );
 
@@ -74,6 +78,7 @@ sub dump_chsets {
     my ($map, $palimage) = @_;
     my $tileset = $map->{tilesets}[0];
     my $image = readimage($tileset->{image});
+    $image->Set(alpha => "Off");
     my $pal = pal($palimage);
     my @pixels;
     for (my $ch = 0; $ch < 512; ++$ch) {
@@ -136,6 +141,7 @@ sub overlay {
 sub main {
     my $map = parsejson($ARGV[0]);
     my $palimage = readimage($ARGV[1]);
+    $palimage->Set(alpha => "Off");
     my $layer = getlayer($map, "visual");
     my $data = $layer->{data} or die;
     my %counts;
