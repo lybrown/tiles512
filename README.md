@@ -1,7 +1,7 @@
-SMB
-===
+tiles512
+========
 
-Tiled Side-Scroller Demo using PAL Blending.
+Tiled Side-Scroller Demo with 512 Characters
 
 Screenshot
 ----------
@@ -18,8 +18,6 @@ Binaries
 
 * [smb-pal.xex](https://github.com/lybrown/smb/raw/master/binaries/smb-pal.xex)
 * [smb-pal.atr](https://github.com/lybrown/smb/raw/master/binaries/smb-pal.atr)
-* [smb-ntsc.xex](https://github.com/lybrown/smb/raw/master/binaries/smb-ntsc.xex)
-* [smb-ntsc.atr](https://github.com/lybrown/smb/raw/master/binaries/smb-ntsc.atr)
 
 Requirements
 ------------
@@ -34,17 +32,20 @@ Interface
 * Joystick button or up for jump
 * Select to toggle music
 * Start to reload map
-* Option to change tile luminance
 
 Engine
 ------
 
 * Changes two playfield colors every scan line
   * Pixels mix vertically in PAL for effectively square pixels at 16 colors
-  * Less mixing in NTSC but still somewhat colorful
+* Changes CHBASE every 8 scanlines so that each row of the tileset can use a
+  different 128-entry character set
+* Uses playfield 1 for solid blue
+* Alternates playfield 2 between red and dark grey
+* Alternates playfield 3 between green and light grey
+* Uses fifth color for solid white, so tile can't have both green and white
 * No computation during raster
-* 50fps or 60fps on PAL or NTSC
-* Pared down display height on NTSC to make up for less vertical blank time
+* 50fps
 * Platforms and blockages
 * Gravity
 * X acceleration
@@ -55,9 +56,7 @@ Tiles
 * 4x4 Antic Mode 4 or effectively 16x16 pixels
 * Effectively 16 colors
 * 32 different tiles fit into four 128-entry
-  [character sets](https://github.com/lybrown/smb/raw/master/tileset.png)
-* Twiddle CHBASE every 8 scanlines so each row of the tileset can use a
-  different 128-entry character set
+  [character sets](https://github.com/lybrown/smb/raw/master/tileset-fullcolor.png)
 * 4K memory
 
 Map
@@ -75,7 +74,7 @@ Map
 Sprites
 -------
 
-* 16x40 pixels
+* 16x32 pixels
 * All four players for multicolor
 * Stored in extended memory
 * No vertical movement
@@ -90,21 +89,20 @@ Screen
 * 10x7.5 tiles
 * 16 quarter tile slices along vertical edge are updated every frame in direction of x movement
 * Takes advantage of Antic LMS wrap for continuous scrolling
-* 1 full tile can be replaced per frame (coin -> background)
-* Coin collision dectection alternates between lower and upper tile of hero every frame
 
 Music
 -----
 
 * SAP by Sim Piko
+* Huge thanks to Sim Piko for generously granting permission to use his SAP in this demo.
 
 Related Efforts
 ---------------
 
-* analmux
-  * http://www.atariage.com/forums/topic/150778-super-mario-bros-on-atari-8bit/page__hl__%20analmux%20%20mario
 * prObe
   * http://atarionline.pl/v01/index.php?ct=katalog&sub=S&tg=Super+Mario+Bros#Super_Mario_Bros
+* analmux
+  * http://www.atariage.com/forums/topic/150778-super-mario-bros-on-atari-8bit/page__hl__%20analmux%20%20mario
 
 Thanks
 ------
