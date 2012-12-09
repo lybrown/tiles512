@@ -6,7 +6,7 @@ Tiled Side-Scroller Demo with 512 Characters
 Screenshot
 ----------
 
-[![tiles](https://github.com/lybrown/tiles/raw/master/screenshots/smb.png)](https://github.com/lybrown/tiles/blob/master/screenshots/smb.png)
+[![tiles](https://github.com/lybrown/tiles512/raw/master/screenshots/smb.png)](https://github.com/lybrown/tiles512/blob/master/screenshots/smb.png)
 
 Video
 -----
@@ -16,8 +16,8 @@ Video
 Binaries
 --------
 
-* [smb-pal.xex](https://github.com/lybrown/smb/raw/master/binaries/smb-pal.xex)
-* [smb-pal.atr](https://github.com/lybrown/smb/raw/master/binaries/smb-pal.atr)
+* [smb-pal.xex](https://github.com/lybrown/tiles512/raw/master/binaries/smb-pal.xex)
+* [smb-pal.atr](https://github.com/lybrown/tiles512/raw/master/binaries/smb-pal.atr)
 
 Requirements
 ------------
@@ -56,13 +56,13 @@ Tiles
 * 4x4 Antic Mode 4 or effectively 16x16 pixels
 * Effectively 16 colors
 * 32 different tiles fit into four 128-entry
-  [character sets](https://github.com/lybrown/smb/raw/master/tileset-fullcolor.png)
+  [character sets](https://github.com/lybrown/tiles512/raw/master/tileset-fullcolor.png)
 * 4K memory
 
 Map
 ---
 
-* 512x16 [tiles](https://github.com/lybrown/smb/blob/master/screenshots/level.png)
+* 512x16 [tiles](https://github.com/lybrown/tiles512/blob/master/screenshots/level.png)
 * Created in Tiled Qt
 * 2 layers: visual, blockages
 * One byte per tile
