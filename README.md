@@ -113,8 +113,10 @@ Thanks
   * http://en.wikipedia.org/wiki/Super_Mario_Bros.
 * Sim Piko for Super Mario Brothers SAP
   * http://asma.atari.org/asmadb/search.php?q1=1&q2=Super+Mario+Brothers&q4=1&q3=1
-* Hendrik-Jan Schoenmaker for ShoeBox
-  * http://renderhjs.net/shoebox/
+* Jose Pereira for reduced color swapping
+  * http://www.atariage.com/forums/topic/197450-mode-15-pal-blending/page__st__100#entry2637787
+* popmilo for on-the-fly character set swapping
+  * http://www.atariage.com/forums/topic/197450-mode-15-pal-blending/page__st__125#entry2637895
 * flashjazzcat, popmilo, XL-Paint Max, et. al. for PAL Blending
   * http://www.atariage.com/forums/topic/197450-mode-15-pal-blending/
 * Rybags for full-screen VSCROL technique and high HSCROL lighter DMA technique
@@ -126,6 +128,8 @@ Thanks
   * http://atariarea.krap.pl/x-asm/
 * AtariAge Forums
   * http://www.atariage.com/forums/forum/12-atari-8-bit-computers/
+* Hendrik-Jan Schoenmaker for ShoeBox
+  * http://renderhjs.net/shoebox/
 * Tiled Qt
   * http://www.mapeditor.org/
 * ImageMagick

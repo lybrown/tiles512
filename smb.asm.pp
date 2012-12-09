@@ -17,7 +17,6 @@ jframe org *+1
 screeny org *+1
 veldir org *+1
 vel org *+1
-blink org *+1
 runframe org *+1
 rightleft org *+1
 footpos org *+2
@@ -42,10 +41,10 @@ silent org *+1
 inflate_zp equ $F0
 
 main equ $2000
-dlist equ $3F00
+dlist equ $3B00
+splash equ $3C00
 song equ $4000
 mapcopy equ $6000
-player equ $6000
 scr equ $A000
 map equ $B000
 chset equ $E000
@@ -53,10 +52,10 @@ buffer equ $8000
 
     ift ntsc
 bottomvcount equ 98
-hy equ 82/2
+hy equ 82/2+12
     els
 bottomvcount equ 122
-hy equ 114/2
+hy equ 114/2+12
     eif
 mapheight equ 16
 mapwidth equ 512
@@ -69,6 +68,7 @@ bank2 equ $8A
 bank3 equ $8E
 bankmain equ $FE
 velstill equ 15
+runframemax equ 3*8-1
 false equ 0
 chromabak equ $00
 chroma0 equ $88
@@ -81,13 +81,58 @@ luma1 equ $06
 luma2 equ $0C
 luma3 equ $0E
 
+    org splash
+splashfont
+    icl 'font.asm'
+splashdlist
+    :8 dta $70
+    dta $42,a(splashtext)
+    :6 dta $2
+splashready
+    dta $41,a(splashdlist)
+    dta $2
+    dta $41,a(splashdlist)
+splashtext
+>>> my $text = <<'EOF';
+>>>TILED SIDE SCROLLER DEMO
+>>>USING PAL BLENDING
+>>>ANTIC MODE E
+>>>
+>>>CODE - XUEL
+>>>MUSIC - SIM PIKO
+>>>
+>>>PRESS START OR FIRE!
+>>>EOF
+>>> #$text .= "\n"x10;
+>>> printf "    dta $_\n" for
+>>>   map { $_==45?40:$_==32?47:$_==33?43:$_<64?$_-48:$_<90?$_-55:() }
+>>>   map ord, map { (m/(.)/g) }
+>>>   map { $p=40-length;" "x($p/2),$_," "x(($p+1)/2) }
+>>>   ($text =~ m{^(.*)?$}gm);
+    :2 dta 47
+splashshow
+    lda #0
+    sta 712
+    sta 710
+    mva #15 711
+    mva #15 709
+    mva #15 708
+    mva >splashfont 756
+    mwa #splashdlist 560
+    mva #$22 559
+    cmp:rne VCOUNT
+    sta WSYNC
+    cmp:rne VCOUNT
+    rts
+    ini splashshow
+
     org main
 relocate
     sei
     lda #0
     sta IRQEN
     sta NMIEN
-    sta DMACTL
+    ;sta DMACTL
     cmp:rne VCOUNT
     ldx buffer+4
     lda banks,x
@@ -140,12 +185,6 @@ clearst
     rts
 banks
     :4 dta bank0+[[#%4]<<2]
-disable_antic
-    lda #0
-    cmp:rne VCOUNT
-    sta 559 ; DMACTL shadow
-    lda #128
-    cmp:rne VCOUNT
     rts
 preinit
     jsr setbank0
@@ -156,7 +195,6 @@ preinit
     jsr setbankmain
     rts
 
-    ini disable_antic
     org dlist
     ift ntsc
     :25 dta $54+[#!=24]*$20,a(scr+#<<6)
@@ -168,18 +206,18 @@ jvb
     icl 'sprites.asm'
     icl 'assets.asm'
     ini preinit
-    opt h-
-    ins 'Super_Mario_Brothers_Over.bin'
-    opt h+
+    ;opt h-
+    ;ins 'Super_Mario_Brothers_Over.bin'
+    ;opt h+
+    org song
+    icl 'song.asm'
 
     org main
     sei
     lda #0
     sta IRQEN
     sta NMIEN
-    sta DMACTL
-    sta COLBK
-    sta COLPF3
+    ;sta DMACTL
     sta SIZEP0
     sta SIZEP1
     sta SIZEP2
@@ -187,21 +225,48 @@ jvb
     sta silent
     mva #$31 PRIOR
     mva #$FF SIZEM
-    mva #$34 COLPM0
-    sta COLPM2
-    mva #$F8 COLPM1
+    mva #$34 COLPM1
     sta COLPM3
+    mva #$F8 COLPM0
+    sta COLPM2
     mva #hx HPOSP0
     sta HPOSP1
     mva #hx+8 HPOSP2
     sta HPOSP3
     mva #2 lumi
     ; TODO: relocate music
-    jsr $C80
+    ;jsr $C80
+    jsr songreloc
 
     ift ntsc
     ;mva #6 tempo
     eif
+
+;    mva #bankmain|1 PORTB
+;    ldx #0
+;chcopy1
+;    mva chset,x buffer,x
+;    mva chset+$100,x buffer+$100,x
+;    mva chset+$200,x buffer+$200,x
+;    mva chset+$300,x buffer+$300,x+
+;    bne chcopy1
+;    mva #bankmain PORTB
+;    ldx #0
+;chcopy2
+;    mva buffer,x chset,x
+;    mva buffer+$100,x chset+$100,x
+;    mva buffer+$200,x chset+$200,x
+;    mva buffer+$300,x chset+$300,x+
+;    bne chcopy2
+
+    lda #0
+    cmp:rne VCOUNT
+    :3 sta splashready+#
+splashwait
+    lda TRIG0
+    and CONSOL
+    and #1
+    bne splashwait
 
     mva #bankmain PORTB
     mwa #vbi $FFFA
@@ -215,18 +280,17 @@ die
     sta lastjump
     sta midair
 
-    mva #$FF veldir
+    mva #velstill|$80 veldir
     mva #bankmain PORTB
     mva #japex jframe
+    mva #runframemax runframe
     mva #26 ground
-    mva #$50 blink
-    mwa #$0070 xpos
+    mwa #$0080 xpos
     sta xposlast
     mwa #0 coarse
-    mva >chset CHBASE
 
     ; reset music
-    jsr $C80
+    jsr songinit
 
 initdraw
     jsr drawedgetiles
@@ -236,7 +300,6 @@ initdraw
     bne initdraw
     mva #0 coarse
 
-    ;jsr play
     lda #bottomvcount
     cmp:rne VCOUNT
     mwa #jvb DLISTL
@@ -251,12 +314,7 @@ vbi
 showframe
     inc framecount
     mva pmbank PORTB
-    lda blink
-    seq:dec blink
-    ldx #0
-    and #2
-    sne:ldx #3
-    stx GRACTL
+    mva #3 GRACTL
 preraster
     ldy jframe
     ldx jumprow,y
@@ -345,14 +403,6 @@ ymovedone
     ; p+=v[vi]
     ; runframe=0 if v==0
     ; runframe+=1 if v!=0, modulus
-    ; bank=1 if dir
-    ; bank=2 if !dir
-    ; bank=3 if v==0 or midair
-    ; PMBASE=0 if v==0 and dir
-    ; PMBASE=1 if v==0 and !dir
-    ; PMBASE=2 if midair and dir
-    ; PMBASE=3 if midair and !dir
-    ; PMBASE=pmbase[runframe] otherwise
 
 xmove
     lda PORTA
@@ -458,7 +508,7 @@ noselect
     ;jsr player+$303 ; play music
     ;jsr play
     lda silent
-    sne:jsr $603
+    sne:jsr songplay
 
 musicdone
 
@@ -524,18 +574,26 @@ moving
     ldy veldir
     spl:ora #4
     tax
+    ldy vel
+    cpy #velstill
+    scc:eor #4
+    tay
     mva bank_dir_still_midair,x pmbank
-    lda pmbase_dir_still_midair,x
+    lda pmbase_skid_still_midair,y
     bpl notrunning
-    lda:inc runframe
-    :2 lsr @
-    and #3
+    lda runframe
+    :3 lsr @
     tax
     mva pmbasetable,x PMBASE
+    lda runframe
+    ldy vel
+    sub runframedeltatable,y
+    spl:add #runframemax
+    sta runframe
     jmp posedone
 notrunning
     sta PMBASE
-    mva #0 runframe
+    mva #runframemax runframe
 posedone
 
 update_display
@@ -748,22 +806,25 @@ veltablelo
     :31 dta [#*16/15]-16
 veltablehi
     :31 dta [#<15]*$FF
+runframedeltatable
+>>> printf "   dta %d\n", abs($_)/5+1 for -15 .. 15;
 bank_dir_still_midair
 >>> for my $dir (0, 1) {
 >>> for my $still (0, 1) {
 >>> for my $midair (0, 1) {
 >>>   printf "    dta bank%s\n",
->>>     $midair ? $dir ? 1 : 2 : $still ? 3 : $dir ? 1 : 2;
+>>>     $dir ? 1 : 2;
 >>> }}}
-pmbase_dir_still_midair
->>> for my $dir (0, 1) {
+pmbase_skid_still_midair
+>>> for my $skid (0, 1) {
 >>> for my $still (0, 1) {
 >>> for my $midair (0, 1) {
 >>>   printf "    dta \$%x\n",
->>>     0x40 + 8 * ($midair ? 6 : $still ? $dir ? 0 : 1 : 8);
+>>>     0x40 + 4 * ($midair ? 5 : $still ? 0 : $skid ? 4 : 16);
 >>> }}}
 pmbasetable
-    :8 dta $40+8*#
+    ;:8 dta $40+4*#
+    :2 dta $48,$4C,$44,$48
 hscroltable
     :4 dta $F,$E,$D,$C
     ;:4 dta 11,10,9,8

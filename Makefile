@@ -4,13 +4,16 @@ smb.run:
 blends.run:
 img.run:
 diskloader.boot:
-smb.obx: assets.asm sprites.asm Super_Mario_Brothers_Over.bin
+smb.obx: assets.asm sprites.asm song.asm font.asm
 diskloader.obx: smb.xex
-assets.asm: level1-2.json pal.ppm tileset-fullcolor.png json2am
+assets.asm: level.json pal.ppm tileset-fullcolor.png json2am
+#assets.asm: level1-2.json pal.ppm tileset-fullcolor.png json2am
 #assets.asm: dizzy.json pal.ppm dizzy-map_bank.png json2am
 	./json2am $^ > $@
 sprites.asm: sprites.png sprites
 	./sprites $< > $@
+font.asm: smb1-font.png
+	./img2font $< > $@
 
 ntsc := 0
 atari = /c/Documents\ and\ Settings/lybrown/Documents/Altirra.exe
@@ -48,13 +51,14 @@ gzip2deflate: gzip2deflate.c
 	gcc -o $@ $<
 
 bin:
+	mkdir -p binaries
 	make ntsc=0 diskloader.atr -W smb.asm.pp
 	mv smb.xex binaries/smb-pal.xex
 	mv diskloader.atr binaries/smb-pal.atr
-	rm smb.obx
-	make ntsc=1 diskloader.atr -W smb.asm.pp
-	mv smb.xex binaries/smb-ntsc.xex
-	mv diskloader.atr binaries/smb-ntsc.atr
+	#rm smb.obx
+	#make ntsc=1 diskloader.atr -W smb.asm.pp
+	#mv smb.xex binaries/smb-ntsc.xex
+	#mv diskloader.atr binaries/smb-ntsc.atr
 
 clean:
 	rm -f *.{obx,atr,lst} *.{tmc,tm2,pgm,wav}.asm *~

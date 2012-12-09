@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Image::Magick;
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+
+sub readimage {
+    my ($file) = @_;
+    my $image = Image::Magick->new;
+    my $status = $image->Read($file);
+    warn "WARNING: $status" if $status;
+    return $image;
+}
+
+sub byte {
+    128*$_[0]+
+    64*$_[1]+
+    32*$_[2]+
+    16*$_[3]+
+    8*$_[4]+
+    4*$_[5]+
+    2*$_[6]+
+    1*$_[7];
+}
+
+sub main {
+    my $image = readimage($ARGV[0]);
+    $image->Set(alpha => "Off");
+    my $width = $image->Get("width");
+    my $height = $image->Get("height");
+    for (my $y = 0; $y < $height; $y += 8) {
+        for (my $x = 0; $x < $width; $x += 8) {
+            my @pixels = $image->GetPixels(x => $x, y => $y,
+                width => 8, height => 8);
+            my @bw = map $pixels[$_*3]?1:0, 0 .. @pixels/3-1;
+            my @char;
+            push @char, byte(splice @bw, 0, 8) while @bw;
+            print "  dta ", (join ",", splice @char, 0, 8), "\n" while @char;
+        }
+    }
+}
+
+main();

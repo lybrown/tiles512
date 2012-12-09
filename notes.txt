@@ -1,0 +1,38 @@
+
+
+Colors
+------
+
+chroma: black, skyblue, red, green
+luma:   black, skyblue, grey, white
+
+sprites: red: $34, skin tone: $F8
+
+
+Timing
+------
+
+    ; badline
+    ; 1,3,5 or 7 good lines
+    ; badline
+    ; 7 good lines
+    ; badline
+    ; 7 good lines
+    ; badline
+    ; 7 good lines
+
+
+    ; pre: CHBASE, COLPF*, VSCROL=X
+    ; bl:chr:  WSYNC, raster,
+    ; gl:lum:  WSYNC, COLPF*, raster, VSCROL=7, jumptable
+
+    ; loop:
+    ; gl:chr:  WSYNC, COLPF*, raster
+    ; gl:lum:  WSYNC, COLPF*, raster
+    ; bl:chr:  WSYNC, COLPF*, CHBASE, raster
+    ; gl:lum:  WSYNC, COLPF*, raster
+    ; gl:chr:  WSYNC, COLPF*, raster
+    ; gl:lum:  WSYNC, COLPF*, raster
+    ; gl:chr:  WSYNC, COLPF*, raster
+    ; gl:lum:  WSYNC, COLPF*, raster, loop
+

@@ -5,7 +5,7 @@ use Image::Magick;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
-my $height = 44;
+my $height = 32;
 
 sub readimage {
     my ($file) = @_;
@@ -26,27 +26,48 @@ sub block {
 }
 
 sub byte {
+    128*$_[0]+
     64*$_[1]+
-    16*$_[2]+
-    4*$_[3]+
-    1*$_[4];
+    32*$_[2]+
+    16*$_[3]+
+    8*$_[4]+
+    4*$_[5]+
+    2*$_[6]+
+    1*$_[7];
 }
 
 sub frame {
-    my ($image, $x, $y, $pmbase, $rev, $bank) = @_;
-    my @pixels = $image->GetPixels(x => $x, y => $y,
-        width => 32, height => $height);
-    my @bw = map $pixels[$_*3]?1:0, 0 .. @pixels/3-1;
-    @bw = reverse @bw if $rev;
+    my ($image, $x, $y, $pmbase, $bank, $rev) = @_;
+    my %map = (
+        0 => {qw(0 0 172 1 248 0 255 1)},
+        1 => {qw(0 0 172 0 248 1 255 1)},
+    );
     my @range = 0 .. $height-1;
     @range = reverse @range if $rev;
-    for my $player (0 .. 3) {
-	my $off = $player * 8;
-	my @pbytes = map((byte(@bw[$_*32+$off .. $_*32+$off+7])) x 1, @range);
-	my $dst = $pmbase + 0x200 + $player*0x80;
-        print "  ; player $player\n";
-	block(num($dst), num($dst + $height), $bank, \@pbytes);
+    my $dst = $pmbase+0x200;
+    for my $player (0, 1, 2, 3) {
+        my $off = ($rev ^ ($player > 1)) ? 8 : 0;
+        my @pixels = $image->GetPixels(x => $x+$off, y => $y,
+            width => 8, height => $height);
+        $_ >>= 8 for @pixels;
+        my @bw = map $map{$player%2}{$pixels[$_*3]}, 0 .. @pixels/3-1;
+        @bw = reverse @bw if $rev;
+        my @pbytes = map byte(@bw[$_*8 .. $_*8+7]), @range;
+        block(num($dst), num($dst+$height), $bank, \@pbytes);
+        $dst += 0x80;
     }
+
+#    my @bw = map $pixels[$_*3]?1:0, 0 .. @pixels/3-1;
+#    @bw = reverse @bw if $rev;
+#    my @range = 0 .. $height-1;
+#    @range = reverse @range if $rev;
+#    for my $player (0 .. 3) {
+#       my $off = $player * 8;
+#       my @pbytes = map((byte(@bw[$_*32+$off .. $_*32+$off+7])) x 1, @range);
+#       my $dst = $pmbase + 0x200 + $player*0x80;
+#        print "  ; player $player\n";
+#       block(num($dst), num($dst + $height), $bank, \@pbytes);
+#    }
 }
 
 sub main {
@@ -55,9 +76,9 @@ sub main {
     for my $rev (0, 1) {
         print "  ini setbank", $rev+1, "\n";
         print "  ini clearbank\n";
-        for my $x (0 .. 7) {
-            my $pmbase = 0x4000 + $x * 0x800;
-            frame($image, $x*32, 0, $pmbase, $rev, $rev+1);
+        for my $x (0 .. 6) {
+            my $pmbase = 0x4000 + $x * 0x400;
+            frame($image, $x*16, 0, $pmbase, $rev+1, $rev);
         }
     }
     print "  ini setbank3\n";

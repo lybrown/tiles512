@@ -58,16 +58,11 @@ bootsector
     ; jmp *
 
     jmp loader
-dlist
-    :3 dta $70
-    dta $42,a(scr)
-    dta $41,a(dlist)
 error
     sei
     mva #0 NMIEN
     lda #$25
     sta COLBK
-    sta scr
     jmp *
 readbuffer
     mva #$80 DBUFLO
@@ -84,8 +79,8 @@ readbuffer
     sub #$8
     sta HPOSP1
     mva #0 GRACTL
-    mva #15 PCOLR0
-    mva #15 PCOLR1
+    mva #8 PCOLR0
+    mva #8 PCOLR1
     mva #$FF GRAFP0
     mva #$FF GRAFP1
     rts
@@ -102,8 +97,6 @@ getword
     mva byte word+1
     rts
 loader
-    mwa #dlist SDLSTL
-    mva #$2C scr
     mva >buffer DBUFHI
     sta ptr+1
     mwa #loadsector DAUX1
@@ -149,7 +142,6 @@ checkvectors
     bne callrun
     beq loop
 callinit
-    mva #$29 scr
     lda:pha >[jinit+2]
     lda:pha <[jinit+2]
 jinit
@@ -157,21 +149,19 @@ jinit
     mwa #0 initv
     beq loop
 callrun
-    mva #$32 scr
     mva #0 HPOSP0
     sta HPOSP1
     sta COLPM0
     sta COLPM1
+    sta GRAFP0
+    sta GRAFP1
     lda:pha >[jrun+2]
     lda:pha <[jrun+2]
 jrun
     jmp (runv)
 spin
-    mva #$33 scr
     jmp *
-scr
-    :40 dta 0
 
     :[$780-*] dta 0
-    ins 'tiles.xex'
+    ins 'smb.xex'
     :128 dta 0
