@@ -93,8 +93,8 @@ Screen
 Music
 -----
 
-* SAP by Sim Piko
-* Huge thanks to Sim Piko for generously granting permission to use his SAP in this demo.
+* SAP by SimPiko
+* Huge thanks to SimPiko for generously granting permission to use his SAP in this demo.
 
 Related Efforts
 ---------------
@@ -109,7 +109,7 @@ Thanks
 
 * Super Mario Brothers
   * http://en.wikipedia.org/wiki/Super_Mario_Bros.
-* Sim Piko for Super Mario Brothers SAP
+* SimPiko for Super Mario Brothers SAP
   * http://asma.atari.org/asmadb/search.php?q1=1&q2=Super+Mario+Brothers&q4=1&q3=1
 * Jose Pereira for reduced color swapping
   * http://www.atariage.com/forums/topic/197450-mode-15-pal-blending/page__st__100#entry2637787

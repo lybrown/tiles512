@@ -1,4 +1,4 @@
-    ; Super Mario Bros by Sim Piko
+    ; Super Mario Bros by SimPiko
     ; http://asma.atari.org/asmadb/search.php?q1=2&q2=Szymon%20Pieczko&q3=1
     org $4000
     ; end $4ae3

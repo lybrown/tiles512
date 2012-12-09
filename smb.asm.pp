@@ -21,6 +21,7 @@ runframe org *+1
 rightleft org *+1
 footpos org *+2
 foottile org *+1
+tilechar org *+1
 checkpos org *+2
 checktile org *+1
 ground org *+1
@@ -99,7 +100,7 @@ splashtext
 >>>ANTIC MODE 4
 >>>
 >>>CODE - XUEL
->>>MUSIC - SIM PIKO
+>>>MUSIC - SIMPIKO
 >>>
 >>>PRESS START OR FIRE!
 >>>EOF
@@ -669,6 +670,73 @@ update_display
     sta dlist+2+3*<<<$c*4+3>>>
 >>> }
 skydone
+
+replacetile
+    ; skip if out of time this frame
+    ;lda VCOUNT
+    ;cmp #$88
+    ;scc:jmp replacedone
+
+    ; skip if x blocked
+    lda foottile
+    and #$80
+    seq:jmp replacedone
+
+    ; checkpos = footpos - ((framecount&1) ? 0 : $200)
+    lda framecount
+    ror @
+    php
+    mva footpos checkpos
+    lda footpos+1
+    scs:sbc #1 ; -2 because carry clear
+    sta checkpos+1
+
+    ; reppos = scr + (((scrpos-jump{lo}+$500)
+    ;          - ((framecount&1) ? 0 : $100)) & $FFC)
+    ldx jframe
+    lda scrpos
+    sub jumpscrlo,x
+    and #$FC
+    php
+    add #[herox*4]
+    sta reppos
+    lda scrpos+1
+    sbc #-5+1*ntsc
+    plp
+    adc #0
+    plp
+    sbc #0 ; -1 if carry clear
+    and #$F
+    add >scr
+    sta reppos+1
+
+    ; tilechar = map[checkpos]&(7<<3)<<1
+    ; map[checkpos] = map[checkpos]&$F8 | map[checkpos]&(7<<3)>>3
+    ldy #herox
+    lda (checkpos),y
+    sta checktile
+    and #$1F
+    cmp #9
+    beq replace
+    cmp #16
+    beq replace
+    jmp replacedone
+replace
+    lda checktile
+    and #$C0
+    sta (checkpos),y
+
+    ; blit to scr
+    lda #0 ; tilechar
+    :4 dta {ldy #},[#<<6],{sta (),y},reppos
+    lda #2
+    :4 dta {ldy #},[#<<6]+1,{sta (),y},reppos
+    lda #3
+    :4 dta {ldy #},[#<<6]+2,{sta (),y},reppos
+    lda #4
+    :4 dta {ldy #},[#<<6]+3,{sta (),y},reppos
+
+replacedone
 
     jsr drawedgetiles
 
