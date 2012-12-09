@@ -96,7 +96,7 @@ splashtext
 >>> my $text = <<'EOF';
 >>>TILED SIDE SCROLLER DEMO
 >>>USING PAL BLENDING
->>>ANTIC MODE E
+>>>ANTIC MODE 4
 >>>
 >>>CODE - XUEL
 >>>MUSIC - SIM PIKO
