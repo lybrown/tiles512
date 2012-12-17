@@ -95,6 +95,8 @@ Music
 
 * SAP by SimPiko
 * Huge thanks to SimPiko for generously granting permission to use his SAP in this demo.
+* Check out his Soundcloud stream:
+  * http://soundcloud.com/sim_piko
 
 Related Efforts
 ---------------
