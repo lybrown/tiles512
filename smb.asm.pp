@@ -73,7 +73,7 @@ runframemax equ 3*8-1
 false equ 0
 chromabak equ $00
 chroma0 equ $88
-chroma1 equ $24
+chroma1 equ $26
 chroma2 equ $B6
 chroma3 equ $0F
 lumabak equ $00

@@ -45,6 +45,7 @@ sub frame {
     my @range = 0 .. $height-1;
     @range = reverse @range if $rev;
     my $dst = $pmbase+0x200;
+    $dst -= 2 if $x == 5*16;
     for my $player (0, 1, 2, 3) {
         my $off = ($rev ^ ($player > 1)) ? 8 : 0;
         my @pixels = $image->GetPixels(x => $x+$off, y => $y,
